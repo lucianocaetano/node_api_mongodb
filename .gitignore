@@ -1,0 +1,4 @@
+node_modules/bcryptjs
+pnpm-lock.json
+package-lock.josn
+.env
