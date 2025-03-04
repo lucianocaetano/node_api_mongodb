@@ -1,4 +1,5 @@
 import { body } from "express-validator";
+import { User } from "../models/User.js";
 
 export const loginValidate = [
   body("email")
@@ -7,7 +8,16 @@ export const loginValidate = [
     .trim()
     .isEmail()
     .withMessage("It must be an email")
-    .normalizeEmail(),
+    .normalizeEmail()
+    .custom(async (value) => {
+      const user = await User.findOne({ email: value });
+
+      if (!user) {
+        throw new Error("This email does not exist.");
+      }
+
+      return true;
+    }),
   body("password")
     .notEmpty()
     .withMessage("Is required")
@@ -23,7 +33,16 @@ export const registerValidate = [
     .trim()
     .isEmail()
     .withMessage("It must be an email")
-    .normalizeEmail(),
+    .normalizeEmail()
+    .custom(async (value) => {
+      const user = await User.findOne({ email: value });
+
+      if (user) {
+        throw new Error("This email is already registered.");
+      }
+
+      return true;
+    }),
   body("password")
     .notEmpty()
     .withMessage("Is required")
@@ -40,6 +59,6 @@ export const registerValidate = [
       if (req.body.password !== value) {
         throw new Error("passwords do not match");
       }
-      return true
+      return true;
     }),
 ];
